@@ -141,7 +141,7 @@ class MAX30105 {
 
   void bitMask(uint8_t reg, uint8_t mask, uint8_t thing);
  
-   #define STORAGE_SIZE 4 //Each long is 4 bytes so limit this to fit on your micro
+   #define STORAGE_SIZE 32 // MAX3010x chip has room for 32 samples
   typedef struct Record
   {
     uint32_t red[STORAGE_SIZE];
