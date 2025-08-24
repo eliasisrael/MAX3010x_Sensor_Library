@@ -343,8 +343,11 @@ void MAX30105::disableFIFORollover(void) {
 
 //Set number of samples to trigger the almost full interrupt (Page 18)
 //Power on default is 32 samples
-//Note it is reverse: 0x00 is 32 samples, 0x0F is 17 samples
+//Note: Value represents free slots remaining when interrupt triggers
+//0x00 = interrupt when FIFO full (0 free slots), 0x0F = interrupt when 17 free slots remain
 void MAX30105::setFIFOAlmostFull(uint8_t numberOfSamples) {
+  // Clamp numberOfSamples to maximum valid value of 15 (4-bit field)
+  if (numberOfSamples > 15) numberOfSamples = 15;
   bitMask(MAX30105_FIFOCONFIG, MAX30105_A_FULL_MASK, numberOfSamples);
 }
 
