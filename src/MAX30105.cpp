@@ -720,14 +720,11 @@ bool MAX30105::safeCheck(uint8_t maxTimeToCheck)
 //Given a register, read it, mask it, and then set the thing
 void MAX30105::bitMask(uint8_t reg, uint8_t mask, uint8_t thing)
 {
-  // Grab current register context
+  // Grab current register content
   uint8_t originalContents = readRegister8(_i2caddr, reg);
 
-  // Zero-out the portions of the register we're interested in
-  originalContents = originalContents & mask;
-
-  // Change contents
-  writeRegister8(_i2caddr, reg, originalContents | thing);
+  // Change register, using mask to protect original contents
+  writeRegister8(_i2caddr, reg, (originalContents&mask) | (thing&~mask));
 }
 
 //
