@@ -379,6 +379,34 @@ uint8_t MAX30105::getReadPointer(void) {
   return (readRegister8(_i2caddr, MAX30105_FIFOREADPTR));
 }
 
+// Set FIFO configuration in a single atomic call for efficiency
+void MAX30105::setFIFOConfig(uint8_t sampleAverage, bool rollover, uint8_t almostFull) {
+  // Convert sampleAverage to register value
+  uint8_t avgValue;
+  switch (sampleAverage) {
+    case 1:  avgValue = MAX30105_SAMPLEAVG_1; break;
+    case 2:  avgValue = MAX30105_SAMPLEAVG_2; break;
+    case 4:  avgValue = MAX30105_SAMPLEAVG_4; break;
+    case 8:  avgValue = MAX30105_SAMPLEAVG_8; break;
+    case 16: avgValue = MAX30105_SAMPLEAVG_16; break;
+    case 32: avgValue = MAX30105_SAMPLEAVG_32; break;
+    default: avgValue = MAX30105_SAMPLEAVG_4; break; // Default to 4 if invalid
+  }
+  
+  // Convert rollover boolean to register value
+  uint8_t rolloverValue = rollover ? MAX30105_ROLLOVER_ENABLE : MAX30105_ROLLOVER_DISABLE;
+  
+  // Clamp almostFull to valid range (0-15, 4-bit field)
+  if (almostFull > 15) almostFull = 15;
+  
+  // Build complete FIFO config register value
+  // FIFOCONFIG register layout: [SMP_AVE2][SMP_AVE1][SMP_AVE0][FIFO_ROLLOVER_EN][FIFO_A_FULL3][FIFO_A_FULL2][FIFO_A_FULL1][FIFO_A_FULL0]
+  uint8_t configValue = avgValue | rolloverValue | almostFull;
+  
+  // Write the complete configuration in a single I2C transaction
+  writeRegister8(_i2caddr, MAX30105_FIFOCONFIG, configValue);
+}
+
 
 // Die Temperature
 // Returns temp in C
