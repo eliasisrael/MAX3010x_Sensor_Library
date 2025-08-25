@@ -94,6 +94,7 @@ class MAX30105 {
   void enableDIETEMPRDY(void);
   void disableDIETEMPRDY(void);
   void setInterruptEnable(bool aFull, bool ppgRdy, bool alcOvf, bool proxInt, bool dieTempRdy);
+  void setFIFOConfig(uint8_t sampleAverage, bool rollover, uint8_t almostFull = 15);
 
   //FIFO Configuration (page 18)
   void setFIFOAverage(uint8_t samples);
