@@ -209,6 +209,24 @@ void MAX30105::disableDIETEMPRDY(void) {
   bitMask(MAX30105_INTENABLE2, MAX30105_INT_DIE_TEMP_RDY_MASK, MAX30105_INT_DIE_TEMP_RDY_DISABLE);
 }
 
+// Set all interrupt enables in a single call for efficiency
+void MAX30105::setInterruptEnable(bool aFull, bool ppgRdy, bool alcOvf, bool proxInt, bool dieTempRdy) {
+  // Build interrupt enable register 1 value (bits 7-4: A_FULL, PPG_RDY, ALC_OVF, PROX_INT)
+  uint8_t intEnable1 = 0x00;
+  if (aFull) intEnable1 |= MAX30105_INT_A_FULL_ENABLE;
+  if (ppgRdy) intEnable1 |= MAX30105_INT_DATA_RDY_ENABLE;
+  if (alcOvf) intEnable1 |= MAX30105_INT_ALC_OVF_ENABLE;
+  if (proxInt) intEnable1 |= MAX30105_INT_PROX_INT_ENABLE;
+  
+  // Build interrupt enable register 2 value (bit 1: DIE_TEMP_RDY)
+  uint8_t intEnable2 = 0x00;
+  if (dieTempRdy) intEnable2 |= MAX30105_INT_DIE_TEMP_RDY_ENABLE;
+  
+  // Write both registers directly for atomic operation
+  writeRegister8(_i2caddr, MAX30105_INTENABLE1, intEnable1);
+  writeRegister8(_i2caddr, MAX30105_INTENABLE2, intEnable2);
+}
+
 //End Interrupt configuration
 
 void MAX30105::softReset(void) {
